@@ -617,6 +617,54 @@ footer {
     box-shadow: 0 10px 28px rgba(19, 44, 58, .11);
 }
 
+.admin-dashboard .quick-access-link {
+    border-color: var(--quick-access-border);
+    background-color: var(--quick-access-background);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.admin-dashboard .quick-access-flights {
+    --quick-access-background: #e8f1ff;
+    --quick-access-border: #c3d6f5;
+    --quick-access-icon: #2d5fa8;
+}
+
+.admin-dashboard .quick-access-users {
+    --quick-access-background: #e8f5ed;
+    --quick-access-border: #b8ddc4;
+    --quick-access-icon: #317049;
+}
+
+.admin-dashboard .quick-access-bookings {
+    --quick-access-background: #fff5df;
+    --quick-access-border: #f4d28e;
+    --quick-access-icon: #9e6d11;
+}
+
+.admin-dashboard .quick-access-payments {
+    --quick-access-background: #e8f6f7;
+    --quick-access-border: #b2dfe3;
+    --quick-access-icon: #267987;
+}
+
+.admin-dashboard .quick-access-penalties {
+    --quick-access-background: #fff0ed;
+    --quick-access-border: #f4c2b9;
+    --quick-access-icon: #a23c30;
+}
+
+.admin-dashboard .quick-access-link svg {
+    flex: 0 0 auto;
+    color: var(--quick-access-icon);
+}
+
+.admin-dashboard .quick-access-link:hover,
+.admin-dashboard .quick-access-link:focus-visible {
+    border-color: var(--quick-access-icon);
+    box-shadow: 0 10px 24px rgba(19, 44, 58, .12);
+    transform: translateY(-2px);
+}
+
 .admin-report .report-controls .btn {
     white-space: nowrap;
 }

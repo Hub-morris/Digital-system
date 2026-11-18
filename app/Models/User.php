@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -45,6 +46,32 @@ class User extends Authenticatable
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class, 'passenger_id');
+    }
+
+    public function hasUncheckedInBooking(): bool
+    {
+        return $this->bookings()
+            ->where('booking_status', Booking::STATUS_CONFIRMED)
+            ->whereDoesntHave('checkIn')
+            ->exists();
+    }
+
+    public function hasConfirmedBookingForFlight(int $flightId): bool
+    {
+        return $this->bookings()
+            ->where('flight_id', $flightId)
+            ->where('booking_status', Booking::STATUS_CONFIRMED)
+            ->exists();
+    }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function penalties(): HasMany
+    {
+        return $this->hasMany(Penalty::class, 'user_id');
     }
 
     public function checkIns(): HasMany

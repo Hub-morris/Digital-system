@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\CheckIn;
 use App\Models\Flight;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
@@ -22,18 +24,18 @@ class BookingManagementTest extends TestCase
         $this->actingAs($passenger)
             ->post(route('bookings.store'), [
                 'flight_id' => $flight->id,
-                'number_of_passengers' => 3,
+                'number_of_passengers' => 1,
             ])
             ->assertRedirect();
 
         $booking = Booking::query()->where('passenger_id', $passenger->id)->firstOrFail();
 
         $this->assertSame(Booking::STATUS_CONFIRMED, $booking->booking_status);
-        $this->assertSame(3, $booking->number_of_passengers);
+        $this->assertSame(1, $booking->number_of_passengers);
         $this->assertMatchesRegularExpression('/^DBP-[0-9A-HJKMNP-TV-Z]{26}$/', $booking->booking_reference);
         $this->assertDatabaseHas('flights', [
             'id' => $flight->id,
-            'available_seats' => 2,
+            'available_seats' => 4,
         ]);
 
         $this->get(route('bookings.confirmation', $booking))
@@ -43,7 +45,25 @@ class BookingManagementTest extends TestCase
 
     public function test_passenger_cannot_book_more_seats_than_available(): void
     {
-        $flight = $this->upcomingFlight(['available_seats' => 1]);
+        $flight = $this->upcomingFlight(['available_seats' => 0]);
+
+        $this->actingAs(User::factory()->create(['role' => 'passenger']))
+            ->post(route('bookings.store'), [
+                'flight_id' => $flight->id,
+                'number_of_passengers' => 1,
+            ])
+            ->assertSessionHasErrors('number_of_passengers');
+
+        $this->assertDatabaseHas('flights', [
+            'id' => $flight->id,
+            'available_seats' => 0,
+        ]);
+        $this->assertDatabaseCount('bookings', 0);
+    }
+
+    public function test_passenger_booking_request_is_limited_to_one_passenger(): void
+    {
+        $flight = $this->upcomingFlight(['available_seats' => 10]);
 
         $this->actingAs(User::factory()->create(['role' => 'passenger']))
             ->post(route('bookings.store'), [
@@ -54,27 +74,132 @@ class BookingManagementTest extends TestCase
 
         $this->assertDatabaseHas('flights', [
             'id' => $flight->id,
-            'available_seats' => 1,
+            'available_seats' => 10,
         ]);
         $this->assertDatabaseCount('bookings', 0);
     }
 
-    public function test_passenger_booking_request_is_limited_to_nine_passengers(): void
+    public function test_passenger_cannot_book_another_flight_until_checking_in(): void
     {
-        $flight = $this->upcomingFlight(['available_seats' => 10]);
+        $passenger = User::factory()->create(['role' => 'passenger']);
+        $currentFlight = $this->upcomingFlight();
+        $nextFlight = $this->upcomingFlight();
+        $currentBooking = $this->createBooking($passenger, $currentFlight);
 
-        $this->actingAs(User::factory()->create(['role' => 'passenger']))
-            ->post(route('bookings.store'), [
-                'flight_id' => $flight->id,
-                'number_of_passengers' => 10,
-            ])
-            ->assertSessionHasErrors('number_of_passengers');
+        $this->actingAs($passenger)
+            ->get(route('flights.show', $nextFlight))
+            ->assertOk()
+            ->assertSee('Check in for that flight before booking another one.')
+            ->assertDontSee('Book this flight');
 
-        $this->assertDatabaseHas('flights', [
-            'id' => $flight->id,
-            'available_seats' => 10,
+        $this->post(route('bookings.store'), [
+            'flight_id' => $nextFlight->getKey(),
+            'number_of_passengers' => 1,
+        ])->assertSessionHasErrors([
+            'flight_id' => 'Check in for your current booking before booking another flight.',
         ]);
-        $this->assertDatabaseCount('bookings', 0);
+
+        $this->assertDatabaseHas('bookings', [
+            'id' => $currentBooking->getKey(),
+            'booking_status' => Booking::STATUS_CONFIRMED,
+        ]);
+        $this->assertDatabaseCount('bookings', 1);
+        $this->assertDatabaseHas('flights', [
+            'id' => $nextFlight->getKey(),
+            'available_seats' => 8,
+        ]);
+    }
+
+    public function test_passenger_can_book_another_flight_after_checking_in(): void
+    {
+        $passenger = User::factory()->create(['role' => 'passenger']);
+        $currentFlight = $this->upcomingFlight();
+        $nextFlight = $this->upcomingFlight();
+        $currentBooking = $this->createBooking($passenger, $currentFlight);
+        CheckIn::query()->create([
+            'booking_id' => $currentBooking->getKey(),
+            'passenger_id' => $passenger->getKey(),
+            'flight_id' => $currentFlight->getKey(),
+            'check_in_reference' => 'CI-'.strtoupper((string) Str::ulid()),
+            'checked_in_at' => now(),
+            'seat_number' => '001',
+            'status' => CheckIn::STATUS_CHECKED_IN,
+        ]);
+
+        $this->actingAs($passenger)
+            ->post(route('bookings.store'), [
+                'flight_id' => $nextFlight->getKey(),
+                'number_of_passengers' => 1,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('bookings', 2);
+        $this->assertDatabaseHas('bookings', [
+            'passenger_id' => $passenger->getKey(),
+            'flight_id' => $nextFlight->getKey(),
+            'booking_status' => Booking::STATUS_CONFIRMED,
+        ]);
+        $this->assertDatabaseHas('flights', [
+            'id' => $nextFlight->getKey(),
+            'available_seats' => 7,
+        ]);
+    }
+
+    public function test_passenger_cannot_book_the_same_flight_again_after_checking_in(): void
+    {
+        $passenger = User::factory()->create(['role' => 'passenger']);
+        $flight = $this->upcomingFlight();
+        $booking = $this->createBooking($passenger, $flight);
+        CheckIn::query()->create([
+            'booking_id' => $booking->getKey(),
+            'passenger_id' => $passenger->getKey(),
+            'flight_id' => $flight->getKey(),
+            'check_in_reference' => 'CI-'.strtoupper((string) Str::ulid()),
+            'checked_in_at' => now(),
+            'seat_number' => '001',
+            'status' => CheckIn::STATUS_CHECKED_IN,
+        ]);
+
+        $this->actingAs($passenger)
+            ->get(route('flights.show', $flight))
+            ->assertOk()
+            ->assertSee('You cannot book the same flight again.')
+            ->assertDontSee('Book this flight');
+
+        $this->post(route('bookings.store'), [
+            'flight_id' => $flight->getKey(),
+            'number_of_passengers' => 1,
+        ])->assertSessionHasErrors([
+            'flight_id' => 'You already have a confirmed booking for this flight.',
+        ]);
+
+        $this->assertDatabaseCount('bookings', 1);
+        $this->assertDatabaseHas('flights', [
+            'id' => $flight->getKey(),
+            'available_seats' => 8,
+        ]);
+    }
+
+    public function test_passenger_can_rebook_a_flight_after_cancelling_the_existing_booking(): void
+    {
+        $passenger = User::factory()->create(['role' => 'passenger']);
+        $flight = $this->upcomingFlight();
+        $booking = $this->createBooking($passenger, $flight);
+        $booking->update(['booking_status' => Booking::STATUS_CANCELLED]);
+
+        $this->actingAs($passenger)
+            ->post(route('bookings.store'), [
+                'flight_id' => $flight->getKey(),
+                'number_of_passengers' => 1,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('bookings', 2);
+        $this->assertDatabaseHas('bookings', [
+            'passenger_id' => $passenger->getKey(),
+            'flight_id' => $flight->getKey(),
+            'booking_status' => Booking::STATUS_CONFIRMED,
+        ]);
     }
 
     public function test_passenger_cannot_book_a_flight_that_has_departed_by_date(): void
@@ -335,6 +460,19 @@ class BookingManagementTest extends TestCase
             'available_seats' => 8,
             'status' => Flight::STATUS_SCHEDULED,
             ...$attributes,
+        ]);
+    }
+
+    private function createBooking(User $passenger, Flight $flight): Booking
+    {
+        return $passenger->bookings()->create([
+            'booking_reference' => 'DBP-'.strtoupper((string) Str::ulid()),
+            'flight_id' => $flight->getKey(),
+            'booking_status' => Booking::STATUS_CONFIRMED,
+            'booking_date' => now(),
+            'number_of_passengers' => 1,
+            'cabin_class' => Flight::CABIN_CLASS_ECONOMY,
+            'fare_amount' => '300.00',
         ]);
     }
 }

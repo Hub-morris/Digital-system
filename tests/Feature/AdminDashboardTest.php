@@ -66,7 +66,12 @@ class AdminDashboardTest extends TestCase
                     && $statistics['pending_synchronization'] === 1;
             })
             ->assertSee('Operations dashboard')
-            ->assertSee('Recent verifications');
+            ->assertSee('Recent verifications')
+            ->assertSee('Flight Management')
+            ->assertSee('User Management')
+            ->assertSee('Booking Management')
+            ->assertSee('Payment Management')
+            ->assertSee('Penalty Management');
     }
 
     public function test_only_administrators_can_access_admin_dashboard_and_management_pages(): void
@@ -85,6 +90,9 @@ class AdminDashboardTest extends TestCase
             'admin.users.index',
             'admin.flights.index',
             'admin.bookings.index',
+            'admin.payments.index',
+            'admin.penalties.index',
+            'admin.penalty-rules.edit',
             'admin.boarding-passes.index',
             'admin.verification-records.index',
             'admin.audit-logs.index',
@@ -93,6 +101,30 @@ class AdminDashboardTest extends TestCase
         ] as $route) {
             $this->get(route($route))->assertOk();
         }
+    }
+
+    public function test_role_navigation_links_open_in_separate_tabs(): void
+    {
+        $passenger = User::factory()->create(['role' => 'passenger']);
+        $staff = User::factory()->create(['role' => 'staff']);
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($passenger)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('href="'.route('dashboard').'" target="_blank" rel="noopener"', false)
+            ->assertSee('href="'.route('bookings.index').'" target="_blank" rel="noopener"', false);
+
+        $this->actingAs($staff)
+            ->get(route('staff.dashboard'))
+            ->assertOk()
+            ->assertSee('href="'.route('staff.dashboard').'" target="_blank" rel="noopener"', false);
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('href="'.route('admin.dashboard').'" target="_blank" rel="noopener"', false)
+            ->assertSee('href="'.route('admin.flights.index').'" target="_blank" rel="noopener"', false);
     }
 
     public function test_user_management_searches_safely_and_does_not_expose_passwords(): void

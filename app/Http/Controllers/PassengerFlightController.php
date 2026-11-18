@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FlightSearchRequest;
 use App\Models\Flight;
+use App\Models\PenaltyRule;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PassengerFlightController extends Controller
@@ -24,13 +26,26 @@ class PassengerFlightController extends Controller
         return view('flights.passenger.index', compact('flights', 'filters'));
     }
 
-    public function show(Flight $flight): View
+    public function show(Request $request, Flight $flight): View
     {
         abort_unless(
             Flight::availableForPassengers()->whereKey($flight->getKey())->exists(),
             404,
         );
 
-        return view('flights.passenger.show', compact('flight'));
+        $penaltyRules = PenaltyRule::query()
+            ->whereIn('cabin_class', Flight::CABIN_CLASSES)
+            ->get()
+            ->keyBy('cabin_class');
+        $passenger = $request->user();
+        $hasConfirmedBookingForFlight = $passenger->hasConfirmedBookingForFlight($flight->getKey());
+        $hasUncheckedInBooking = $passenger->hasUncheckedInBooking();
+
+        return view('flights.passenger.show', compact(
+            'flight',
+            'penaltyRules',
+            'hasConfirmedBookingForFlight',
+            'hasUncheckedInBooking',
+        ));
     }
 }

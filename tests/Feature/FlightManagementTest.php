@@ -41,6 +41,53 @@ class FlightManagementTest extends TestCase
             ->assertSee('LKV');
     }
 
+    public function test_passenger_can_select_a_seeded_fare_and_book_the_flight(): void
+    {
+        $this->seed();
+        $passenger = User::query()->where('email', 'passenger@example.com')->firstOrFail();
+        $flight = Flight::query()->where('flight_number', 'NC-305')->firstOrFail();
+
+        $this->actingAs($passenger)
+            ->get(route('flights.show', $flight))
+            ->assertOk()
+            ->assertSee('Fare per passenger: 150.00')
+            ->assertSee('Fare per passenger: 350.00');
+
+        $this->post(route('bookings.store'), [
+            'flight_id' => $flight->getKey(),
+            'number_of_passengers' => 1,
+            'cabin_class' => Flight::CABIN_CLASS_ECONOMY,
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('bookings', [
+            'passenger_id' => $passenger->getKey(),
+            'flight_id' => $flight->getKey(),
+            'cabin_class' => Flight::CABIN_CLASS_ECONOMY,
+            'fare_amount' => '150.00',
+        ]);
+        $this->assertDatabaseHas('flights', [
+            'id' => $flight->getKey(),
+            'available_seats' => 30,
+        ]);
+    }
+
+    public function test_passenger_sees_why_booking_is_unavailable_when_flight_has_no_fare(): void
+    {
+        $passenger = User::factory()->create(['role' => 'passenger']);
+        $flight = Flight::factory()->create([
+            'economy_fare' => '0.00',
+            'business_fare' => '0.00',
+            'first_class_fare' => '0.00',
+        ]);
+
+        $this->actingAs($passenger)
+            ->get(route('flights.show', $flight))
+            ->assertOk()
+            ->assertSee('No cabin classes are available because fares have not been configured for this flight.')
+            ->assertSee('Not available: fare has not been configured.')
+            ->assertSee('disabled', false);
+    }
+
     public function test_admin_can_update_flight_details_and_status(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -246,6 +293,9 @@ class FlightManagementTest extends TestCase
             'departure_time' => '08:30',
             'arrival_time' => '09:45',
             'aircraft' => 'ATR 72',
+            'economy_fare' => 150,
+            'business_fare' => 350,
+            'first_class_fare' => 600,
             'total_seats' => 72,
             'available_seats' => 48,
             'status' => Flight::STATUS_SCHEDULED,

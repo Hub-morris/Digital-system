@@ -20,7 +20,7 @@ class BookingController extends Controller
         ]);
 
         $bookings = Booking::query()
-            ->with(['passenger', 'flight'])
+            ->with(['passenger', 'flight', 'penalty'])
             ->when($filters['q'] ?? null, function ($query, string $search): void {
                 $query->where(function ($query) use ($search): void {
                     $query->where('booking_reference', 'like', "%{$search}%")
@@ -45,7 +45,7 @@ class BookingController extends Controller
 
     public function show(Booking $booking): View
     {
-        $booking->load(['passenger', 'flight']);
+        $booking->load(['passenger', 'flight', 'penalty']);
 
         return view('admin.bookings.show', compact('booking'));
     }

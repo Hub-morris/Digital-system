@@ -20,10 +20,52 @@
     @endphp
 
     <section class="container-fluid admin-dashboard px-3 px-lg-4 py-4">
+        <section class="content-panel p-3 p-lg-4 mb-4" aria-labelledby="admin-management-heading">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+                <div>
+                    <p class="eyebrow mb-1">Quick access</p>
+                    <h1 class="h3 mb-0" id="admin-management-heading">Management</h1>
+                </div>
+                <span class="small text-muted-custom">Admin tools, one click away</span>
+            </div>
+            <div class="row g-3">
+                <div class="col-6 col-md-4 col-xl">
+                    <a class="content-panel quick-access-link quick-access-flights d-flex align-items-center gap-3 h-100 p-3 text-decoration-none text-body" href="{{ route('admin.flights.index') }}">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M3 13.5 21 3l-5.5 18-3.2-7.3L3 13.5Z"/><path d="m12.3 13.7 4.2-4.2"/></svg>
+                        <span class="fw-semibold">Flight Management</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-xl">
+                    <a class="content-panel quick-access-link quick-access-users d-flex align-items-center gap-3 h-100 p-3 text-decoration-none text-body" href="{{ route('admin.users.index') }}">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 5.2a3.5 3.5 0 0 1 0 5.6M18 14a5.5 5.5 0 0 1 3.5 5.2"/></svg>
+                        <span class="fw-semibold">User Management</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-xl">
+                    <a class="content-panel quick-access-link quick-access-bookings d-flex align-items-center gap-3 h-100 p-3 text-decoration-none text-body" href="{{ route('admin.bookings.index') }}">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M4 4.5h16v15H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+                        <span class="fw-semibold">Booking Management</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-6 col-xl">
+                    <a class="content-panel quick-access-link quick-access-payments d-flex align-items-center gap-3 h-100 p-3 text-decoration-none text-body" href="{{ route('admin.payments.index') }}">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9h19M7 14h4"/></svg>
+                        <span class="fw-semibold">Payment Management</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-6 col-xl">
+                    <a class="content-panel quick-access-link quick-access-penalties d-flex align-items-center gap-3 h-100 p-3 text-decoration-none text-body" href="{{ route('admin.penalties.index') }}">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5M12 17.2v.1"/></svg>
+                        <span class="fw-semibold">Penalty Management</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
         <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
             <div>
                 <p class="eyebrow mb-2">Airport operations · Administration</p>
-                <h1 class="h2 mb-1">Operations dashboard</h1>
+                <h2 class="h2 mb-1">Operations dashboard</h2>
                 <p class="text-muted-custom mb-0">Live overview of passengers, flights, boarding and system synchronization.</p>
             </div>
             <div class="content-panel px-3 py-2">
@@ -50,7 +92,7 @@
         </div>
 
         <div class="row g-4">
-            <div class="col-xl-8">
+            <div class="col-12">
                 <section class="content-panel overflow-hidden">
                     <div class="d-flex justify-content-between align-items-center gap-3 p-3 border-bottom">
                         <div>
@@ -80,19 +122,6 @@
                             </tbody>
                         </table>
                     </div>
-                </section>
-            </div>
-            <div class="col-xl-4">
-                <section class="content-panel p-3 h-100">
-                    <p class="mono-label mb-1">Quick access</p>
-                    <h2 class="h5 mb-3">Administration</h2>
-                    <div class="d-grid gap-2">
-                        <a class="btn btn-primary text-start" href="{{ route('admin.users.index') }}">Manage users <span class="float-end" aria-hidden="true">&rarr;</span></a>
-                        <a class="btn btn-outline-primary text-start" href="{{ route('admin.flights.index') }}">Manage flights <span class="float-end" aria-hidden="true">&rarr;</span></a>
-                        <a class="btn btn-outline-primary text-start" href="{{ route('admin.bookings.index') }}">Manage bookings <span class="float-end" aria-hidden="true">&rarr;</span></a>
-                        <a class="btn btn-outline-primary text-start" href="{{ route('admin.audit-logs.index') }}">Review audit logs <span class="float-end" aria-hidden="true">&rarr;</span></a>
-                    </div>
-                    <p class="small text-muted-custom mt-3 mb-0">Offline scan records appear here after a gate terminal synchronizes with the central server.</p>
                 </section>
             </div>
         </div>

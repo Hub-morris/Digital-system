@@ -12,3 +12,7 @@ Schedule::command('gate:sync')
     ->everyMinute()
     ->withoutOverlapping()
     ->when(fn (): bool => (bool) config('services.gate_terminal.enabled'));
+
+Schedule::command('penalties:apply-no-shows')
+    ->everyMinute()
+    ->withoutOverlapping();

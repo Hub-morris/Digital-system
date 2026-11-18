@@ -15,6 +15,8 @@
                 <dt class="col-sm-4">Route</dt><dd class="col-sm-8">{{ $booking->flight->departure_airport }} &rarr; {{ $booking->flight->arrival_airport }}</dd>
                 <dt class="col-sm-4">Departure</dt><dd class="col-sm-8">{{ $booking->flight->departure_date->format('M j, Y') }} at {{ substr($booking->flight->departure_time, 0, 5) }}</dd>
                 <dt class="col-sm-4">Passengers</dt><dd class="col-sm-8">{{ $booking->number_of_passengers }}</dd>
+                <dt class="col-sm-4">Cabin class</dt><dd class="col-sm-8">{{ $booking->cabin_class }}</dd>
+                <dt class="col-sm-4">Fare</dt><dd class="col-sm-8">{{ number_format((float) $booking->fare_amount, 2) }}</dd>
                 <dt class="col-sm-4">Status</dt><dd class="col-sm-8">{{ $booking->booking_status }}</dd>
             </dl>
         </div>

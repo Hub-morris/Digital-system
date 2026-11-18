@@ -57,6 +57,21 @@
             @error('arrival_time') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
         <div class="col-md-4">
+            <label class="form-label" for="economy_fare">Economy fare</label>
+            <input class="form-control @error('economy_fare') is-invalid @enderror" id="economy_fare" name="economy_fare" type="number" min="0.01" step="0.01" value="{{ old('economy_fare', $flight->economy_fare ?? '') }}" required>
+            @error('economy_fare') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="business_fare">Business fare</label>
+            <input class="form-control @error('business_fare') is-invalid @enderror" id="business_fare" name="business_fare" type="number" min="0.01" step="0.01" value="{{ old('business_fare', $flight->business_fare ?? '') }}" required>
+            @error('business_fare') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="first_class_fare">First Class fare</label>
+            <input class="form-control @error('first_class_fare') is-invalid @enderror" id="first_class_fare" name="first_class_fare" type="number" min="0.01" step="0.01" value="{{ old('first_class_fare', $flight->first_class_fare ?? '') }}" required>
+            @error('first_class_fare') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+        <div class="col-md-4">
             <label class="form-label" for="total_seats">Total seats</label>
             <input class="form-control @error('total_seats') is-invalid @enderror" id="total_seats" name="total_seats" type="number" min="1" max="10000" value="{{ old('total_seats', $flight->total_seats ?? '') }}" required>
             @error('total_seats') <div class="invalid-feedback">{{ $message }}</div> @enderror

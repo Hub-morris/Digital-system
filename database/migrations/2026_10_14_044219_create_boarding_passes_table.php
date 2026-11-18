@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('check_in_id')->unique()->constrained()->restrictOnDelete();
             $table->string('seat_number', 10);
             $table->string('pass_status', 20)->default('ACTIVE');
-            $table->timestamp('issued_at');
-            $table->timestamp('expires_at');
+            $table->dateTime('issued_at');
+            $table->dateTime('expires_at');
             $table->timestamp('used_at')->nullable();
             $table->timestamps();
 

@@ -38,7 +38,7 @@
         <div class="content-panel table-responsive">
             <table class="table align-middle mb-0">
                 <thead>
-                    <tr><th scope="col">Reference</th><th scope="col">Passenger</th><th scope="col">Flight</th><th scope="col">Booking date</th><th scope="col">Passengers</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Details</span></th></tr>
+                    <tr><th scope="col">Reference</th><th scope="col">Passenger</th><th scope="col">Flight</th><th scope="col">Booking date</th><th scope="col">Class / fare</th><th scope="col">Status</th><th scope="col">Penalty</th><th scope="col"><span class="visually-hidden">Details</span></th></tr>
                 </thead>
                 <tbody>
                     @forelse ($bookings as $booking)
@@ -47,12 +47,13 @@
                             <td>{{ $booking->passenger->full_name }}<span class="d-block small text-muted-custom">{{ $booking->passenger->email }}</span></td>
                             <td>{{ $booking->flight->flight_number }}</td>
                             <td>{{ $booking->booking_date->format('M j, Y') }}</td>
-                            <td>{{ $booking->number_of_passengers }}</td>
+                            <td>{{ $booking->cabin_class }}<span class="d-block small text-muted-custom">{{ number_format((float) $booking->fare_amount, 2) }}</span></td>
                             <td>{{ $booking->booking_status }}</td>
+                            <td>{{ $booking->penalty?->status ?? '—' }}</td>
                             <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ route('admin.bookings.show', $booking) }}">View</a></td>
                         </tr>
                     @empty
-                        <tr><td class="text-center text-muted-custom py-5" colspan="7">No bookings match these filters.</td></tr>
+                        <tr><td class="text-center text-muted-custom py-5" colspan="8">No bookings match these filters.</td></tr>
                     @endforelse
                 </tbody>
             </table>

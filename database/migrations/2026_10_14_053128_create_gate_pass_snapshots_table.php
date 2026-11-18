@@ -26,10 +26,10 @@ return new class extends Migration
             $table->string('flight_number', 32);
             $table->string('destination', 10);
             $table->string('seat_number', 10);
-            $table->timestamp('departure_at');
-            $table->timestamp('expires_at');
+            $table->dateTime('departure_at');
+            $table->dateTime('expires_at');
             $table->uuid('lease_id');
-            $table->timestamp('offline_valid_until');
+            $table->dateTime('offline_valid_until');
             $table->string('snapshot_signature', 64);
             $table->boolean('is_enabled')->default(true);
             $table->timestamp('locally_used_at')->nullable();

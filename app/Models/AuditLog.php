@@ -43,6 +43,8 @@ class AuditLog extends Model
 
     public const EVENT_ADMINISTRATOR_CHANGE = 'administrator_change';
 
+    public const EVENT_PENALTY_APPLIED = 'penalty_applied';
+
     protected function casts(): array
     {
         return [

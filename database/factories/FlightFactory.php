@@ -23,6 +23,9 @@ class FlightFactory extends Factory
             'aircraft' => 'ATR 72',
             'total_seats' => 72,
             'available_seats' => 52,
+            'economy_fare' => 150,
+            'business_fare' => 350,
+            'first_class_fare' => 600,
             'status' => Flight::STATUS_SCHEDULED,
         ];
     }

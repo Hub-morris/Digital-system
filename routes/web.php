@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BoardingPassController as AdminBoardingPassController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\FlightController as AdminFlightController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\PenaltyController as AdminPenaltyController;
 use App\Http\Controllers\Admin\SystemReportController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VerificationRecordController as AdminVerificationRecordController;
@@ -15,6 +17,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PassengerFlightController;
+use App\Http\Controllers\PenaltyController;
 use App\Http\Controllers\Staff\GateTerminalController;
 use App\Http\Controllers\Staff\StaffDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +38,9 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware(['auth', 'passenger'])->group(function (): void {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/penalties', [PenaltyController::class, 'index'])->name('penalties.index');
+    Route::get('/penalties/{penalty}', [PenaltyController::class, 'show'])->name('penalties.show');
+    Route::post('/penalties/{penalty}/pay', [PenaltyController::class, 'pay'])->name('penalties.pay');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])
         ->name('notifications.read');
     Route::get('/flights', [PassengerFlightController::class, 'index'])->name('flights.index');
@@ -77,6 +83,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
     Route::get('/reports/export', [SystemReportController::class, 'export'])->name('reports.export');
     Route::get('/reports', [SystemReportController::class, 'index'])->name('reports.index');
+    Route::get('/penalties/report', [AdminPenaltyController::class, 'report'])->name('penalties.report');
+    Route::get('/penalties', [AdminPenaltyController::class, 'index'])->name('penalties.index');
+    Route::get('/penalties/{penalty}', [AdminPenaltyController::class, 'show'])->name('penalties.show');
+    Route::patch('/penalties/{penalty}/adjust', [AdminPenaltyController::class, 'adjust'])->name('penalties.adjust');
+    Route::patch('/penalties/{penalty}/waive', [AdminPenaltyController::class, 'waive'])->name('penalties.waive');
+    Route::get('/penalty-rules', [AdminPenaltyController::class, 'editRules'])->name('penalty-rules.edit');
+    Route::put('/penalty-rules', [AdminPenaltyController::class, 'updateRules'])->name('penalty-rules.update');
+    Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+    Route::post('/payments/wallet-credits', [AdminPaymentController::class, 'creditWallet'])->name('payments.wallet-credits.store');
     Route::view('/profile', 'admin.profile')->name('profile');
     Route::resource('flights', AdminFlightController::class);
     Route::patch('flights/{flight}/status', [AdminFlightController::class, 'updateStatus'])->name('flights.status');

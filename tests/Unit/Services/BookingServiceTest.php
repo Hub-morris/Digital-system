@@ -15,17 +15,17 @@ class BookingServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_booking_creation_confirms_booking_and_decrements_available_seats(): void
+    public function test_booking_creation_confirms_one_passenger_and_decrements_one_seat(): void
     {
         Notification::fake();
         $passenger = User::factory()->create(['role' => 'passenger']);
         $flight = Flight::factory()->create(['available_seats' => 5]);
 
-        $booking = app(BookingService::class)->create($passenger, $flight->getKey(), 2);
+        $booking = app(BookingService::class)->create($passenger, $flight->getKey(), 1);
 
         $this->assertSame(Booking::STATUS_CONFIRMED, $booking->booking_status);
-        $this->assertSame(2, $booking->number_of_passengers);
-        $this->assertSame(3, $flight->fresh()->available_seats);
+        $this->assertSame(1, $booking->number_of_passengers);
+        $this->assertSame(4, $flight->fresh()->available_seats);
         $this->assertDatabaseHas('bookings', ['id' => $booking->getKey()]);
     }
 
@@ -33,10 +33,10 @@ class BookingServiceTest extends TestCase
     {
         Notification::fake();
         $passenger = User::factory()->create(['role' => 'passenger']);
-        $flight = Flight::factory()->create(['available_seats' => 1]);
+        $flight = Flight::factory()->create(['available_seats' => 0]);
 
         try {
-            app(BookingService::class)->create($passenger, $flight->getKey(), 2);
+            app(BookingService::class)->create($passenger, $flight->getKey(), 1);
             $this->fail('Expected insufficient flight capacity to reject booking.');
         } catch (ValidationException $exception) {
             $this->assertSame(
@@ -45,7 +45,27 @@ class BookingServiceTest extends TestCase
             );
         }
 
-        $this->assertSame(1, $flight->fresh()->available_seats);
+        $this->assertSame(0, $flight->fresh()->available_seats);
+        $this->assertDatabaseCount('bookings', 0);
+    }
+
+    public function test_booking_creation_rejects_more_than_one_passenger(): void
+    {
+        Notification::fake();
+        $passenger = User::factory()->create(['role' => 'passenger']);
+        $flight = Flight::factory()->create(['available_seats' => 5]);
+
+        try {
+            app(BookingService::class)->create($passenger, $flight->getKey(), 2);
+            $this->fail('Expected more than one passenger to be rejected.');
+        } catch (ValidationException $exception) {
+            $this->assertSame(
+                'Only one passenger can be included in each booking.',
+                $exception->errors()['number_of_passengers'][0],
+            );
+        }
+
+        $this->assertSame(5, $flight->fresh()->available_seats);
         $this->assertDatabaseCount('bookings', 0);
     }
 }

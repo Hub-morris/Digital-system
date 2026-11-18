@@ -29,6 +29,7 @@ class BookingController extends Controller
             $request->user(),
             $request->integer('flight_id'),
             $request->integer('number_of_passengers'),
+            $request->string('cabin_class')->toString(),
         );
 
         return redirect()->route('bookings.confirmation', $booking);
@@ -37,7 +38,7 @@ class BookingController extends Controller
     public function confirmation(Request $request, Booking $booking): View
     {
         $booking = $request->user()->bookings()
-            ->with('flight')
+            ->with(['flight', 'penalty'])
             ->findOrFail($booking->getKey());
 
         return view('bookings.confirmation', compact('booking'));
@@ -46,7 +47,7 @@ class BookingController extends Controller
     public function show(Request $request, Booking $booking, CheckInService $checkInService): View
     {
         $booking = $request->user()->bookings()
-            ->with(['flight', 'checkIn.boardingPass'])
+            ->with(['flight', 'checkIn.boardingPass', 'penalty'])
             ->findOrFail($booking->getKey());
         $flight = $booking->flight;
         $canCancel = $booking->booking_status === Booking::STATUS_CONFIRMED

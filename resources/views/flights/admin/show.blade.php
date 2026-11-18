@@ -24,6 +24,9 @@
                 <dt class="col-sm-4">Arrival time</dt><dd class="col-sm-8">{{ substr($flight->arrival_time, 0, 5) }}</dd>
                 <dt class="col-sm-4">Aircraft</dt><dd class="col-sm-8">{{ $flight->aircraft ?: 'Not specified' }}</dd>
                 <dt class="col-sm-4">Available seats</dt><dd class="col-sm-8">{{ $flight->available_seats }} of {{ $flight->total_seats }}</dd>
+                <dt class="col-sm-4">Economy fare</dt><dd class="col-sm-8">{{ number_format((float) $flight->economy_fare, 2) }}</dd>
+                <dt class="col-sm-4">Business fare</dt><dd class="col-sm-8">{{ number_format((float) $flight->business_fare, 2) }}</dd>
+                <dt class="col-sm-4">First Class fare</dt><dd class="col-sm-8">{{ number_format((float) $flight->first_class_fare, 2) }}</dd>
             </dl>
         </div>
 
@@ -41,6 +44,7 @@
                 </div>
                 <div class="col-sm-auto"><button class="btn btn-outline-primary" type="submit">Update status</button></div>
             </div>
+            <p class="small text-muted-custom mt-3 mb-0">Mark the flight Departed once it takes off. The scheduled no-show check applies configured penalties to bookings without a used boarding pass.</p>
         </form>
     </section>
 @endsection

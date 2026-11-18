@@ -78,6 +78,12 @@ Run the test suite (feature tests use in-memory SQLite):
 php artisan test
 ```
 
+## Deployment
+
+For the Render Docker Blueprint setup, PostgreSQL configuration, free-plan
+limitations, and deployment steps, see
+[RENDER_DEPLOYMENT_GUIDE.md](./RENDER_DEPLOYMENT_GUIDE.md).
+
 In a local setup without MySQL credentials, the seeded SQLite database can be used directly:
 
 ```bash

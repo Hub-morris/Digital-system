@@ -27,6 +27,8 @@ class BookingFactory extends Factory
             'booking_status' => Booking::STATUS_CONFIRMED,
             'booking_date' => now(),
             'number_of_passengers' => 1,
+            'cabin_class' => Flight::CABIN_CLASS_ECONOMY,
+            'fare_amount' => 150,
         ];
     }
 }

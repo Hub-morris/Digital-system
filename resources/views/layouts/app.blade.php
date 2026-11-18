@@ -22,31 +22,37 @@
                     <div class="navbar-nav ms-auto align-items-md-center gap-md-2 pt-3 pt-md-0">
                         @auth
                             @if (auth()->user()->role === 'passenger')
-                                <a @class(['nav-link', 'active' => request()->routeIs('dashboard')]) href="{{ route('dashboard') }}">Dashboard</a>
-                                <a @class(['nav-link', 'active' => request()->routeIs('bookings.*')]) href="{{ route('bookings.index') }}">My bookings</a>
-                                <a @class(['nav-link', 'active' => request()->routeIs('notifications.*')]) href="{{ route('notifications.index') }}">Notifications</a>
+                                <a @class(['nav-link', 'active' => request()->routeIs('dashboard')]) href="{{ route('dashboard') }}" target="_blank" rel="noopener">Dashboard</a>
+                                <a @class(['nav-link', 'active' => request()->routeIs('bookings.*')]) href="{{ route('bookings.index') }}" target="_blank" rel="noopener">My bookings</a>
+                                <a @class(['nav-link', 'active' => request()->routeIs('penalties.*')]) href="{{ route('penalties.index') }}" target="_blank" rel="noopener">Wallet & penalties</a>
+                                <a @class(['nav-link', 'active' => request()->routeIs('notifications.*')]) href="{{ route('notifications.index') }}" target="_blank" rel="noopener">Notifications</a>
                             @elseif (auth()->user()->role === 'staff')
-                                <a @class(['nav-link', 'active' => request()->routeIs('staff.*')]) href="{{ route('staff.dashboard') }}">Staff workspace</a>
+                                <a @class(['nav-link', 'active' => request()->routeIs('staff.*')]) href="{{ route('staff.dashboard') }}" target="_blank" rel="noopener">Staff workspace</a>
                             @elseif (auth()->user()->role === 'admin')
                                 <div class="nav-item dropdown">
                                     <a @class(['nav-link', 'dropdown-toggle', 'active' => request()->routeIs('admin.*')]) href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         Administration
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.dashboard')]) href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.users.*')]) href="{{ route('admin.users.index') }}">Users</a></li>
-                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.flights.*')]) href="{{ route('admin.flights.index') }}">Flights</a></li>
-                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.bookings.*')]) href="{{ route('admin.bookings.index') }}">Bookings</a></li>
-                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.boarding-passes.*')]) href="{{ route('admin.boarding-passes.index') }}">Boarding passes</a></li>
-                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.verification-records.*')]) href="{{ route('admin.verification-records.index') }}">Verification records</a></li>
-                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.audit-logs.*')]) href="{{ route('admin.audit-logs.index') }}">Audit logs</a></li>
-                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.reports.*')]) href="{{ route('admin.reports.index') }}">System reports</a></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.dashboard')]) href="{{ route('admin.dashboard') }}" target="_blank" rel="noopener">Dashboard</a></li>
+                                        <li><h6 class="dropdown-header">Management</h6></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.flights.*')]) href="{{ route('admin.flights.index') }}" target="_blank" rel="noopener">Flight management</a></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.users.*')]) href="{{ route('admin.users.index') }}" target="_blank" rel="noopener">Users</a></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.bookings.*')]) href="{{ route('admin.bookings.index') }}" target="_blank" rel="noopener">Bookings</a></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.payments.*')]) href="{{ route('admin.payments.index') }}" target="_blank" rel="noopener">Payments</a></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.penalties.*', 'admin.penalty-rules.*')]) href="{{ route('admin.penalties.index') }}" target="_blank" rel="noopener">Penalties</a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.profile')]) href="{{ route('admin.profile') }}">Profile</a></li>
+                                        <li><h6 class="dropdown-header">Operations</h6></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.boarding-passes.*')]) href="{{ route('admin.boarding-passes.index') }}" target="_blank" rel="noopener">Boarding passes</a></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.verification-records.*')]) href="{{ route('admin.verification-records.index') }}" target="_blank" rel="noopener">Verification records</a></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.audit-logs.*')]) href="{{ route('admin.audit-logs.index') }}" target="_blank" rel="noopener">Audit logs</a></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.reports.*')]) href="{{ route('admin.reports.index') }}" target="_blank" rel="noopener">System reports</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a @class(['dropdown-item', 'active' => request()->routeIs('admin.profile')]) href="{{ route('admin.profile') }}" target="_blank" rel="noopener">Profile</a></li>
                                     </ul>
                                 </div>
                             @else
-                                <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
+                                <a class="nav-link" href="{{ route('dashboard') }}" target="_blank" rel="noopener">Dashboard</a>
                             @endif
                             <span class="nav-link user-name text-muted-custom">{{ auth()->user()->full_name }}</span>
                             <form action="{{ route('logout') }}" method="POST">

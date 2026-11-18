@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
@@ -16,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'booking_status',
     'booking_date',
     'number_of_passengers',
+    'cabin_class',
+    'fare_amount',
 ])]
 class Booking extends Model
 {
@@ -26,15 +29,21 @@ class Booking extends Model
 
     public const STATUS_CANCELLED = 'Cancelled';
 
+    public const STATUS_NO_SHOW = 'No-Show';
+
     public const STATUSES = [
         self::STATUS_CONFIRMED,
         self::STATUS_CANCELLED,
+        self::STATUS_NO_SHOW,
     ];
+
+    public const CABIN_CLASSES = Flight::CABIN_CLASSES;
 
     protected function casts(): array
     {
         return [
             'booking_date' => 'datetime',
+            'fare_amount' => 'decimal:2',
         ];
     }
 
@@ -56,5 +65,15 @@ class Booking extends Model
     public function boardingPass(): HasOne
     {
         return $this->hasOne(BoardingPass::class);
+    }
+
+    public function penalties(): HasMany
+    {
+        return $this->hasMany(Penalty::class);
+    }
+
+    public function penalty(): HasOne
+    {
+        return $this->hasOne(Penalty::class);
     }
 }
